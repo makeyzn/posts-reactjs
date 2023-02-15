@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import PostForm from "./components/PostForm";
 import PostItem from "./components/PostItem";
 import PostList from "./components/PostList";
 import MyButton from "./components/UI/button/MyButton";
@@ -12,28 +13,13 @@ function App() {
     {id: 3, title: 'JavaScript 3', body: 'Description'},
   ])
   
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-
-  const addNewPost = (e) => {
-    e.preventDefault()
-    const newPost = {
-      id: Date.now(),
-      title,
-      body
-    }
-    setPosts([...posts, newPost]);
-    setBody('');
-    setTitle('');
+  const createPost = (newPost) => {
+    setPosts([...posts, newPost])
   }
+
   return (
     <div className="App">
-      <form>
-        {/* Управляемый компонент */}
-        <MyInput value={title} onChange={e => setTitle(e.target.value)} type="text" placeholder="Название поста"></MyInput>
-        <MyInput value={body} onChange={e => setBody(e.target.value)} type="text" placeholder="Описание поста"></MyInput>
-        <MyButton onClick={addNewPost} >Создать пост</MyButton>
-      </form>
+      <PostForm create={createPost}/>
       <PostList posts={posts} title="Посты про JS"/>
     </div>
   );
