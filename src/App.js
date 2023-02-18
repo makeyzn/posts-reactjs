@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useRef } from "react";
+import { usePosts } from "./components/hooks/usePosts";
 import PostFilter from "./components/PostFilter";
 import PostForm from "./components/PostForm";
 import PostItem from "./components/PostItem";
@@ -10,27 +11,13 @@ import MySelect from "./components/UI/select/MySelect";
 import './styles/App.css'
 
 function App() {
-  const [posts, setPosts] = useState([
-    {id: 1, title: 'вв', body: 'бб'},
-    {id: 2, title: 'аа 2', body: 'яя'},
-    {id: 3, title: 'гг 3', body: 'аа'},
-  ])
+  const [posts, setPosts] = useState([])
 
   const [filter, setFilter] = useState({sort: '', query: ''});
 
   const [modal, setModal] = useState(false);
 
-  const sortedPosts = useMemo( () => {
-    console.log('Отработала функция getSortedPosts')
-    if(filter.sort) {
-      return [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]));
-    }
-    return posts;
-  }, [filter.sort, posts]);
-
-  const sortedAndSearchedPosts = useMemo(() => {
-    return sortedPosts.filter(post => post.title.toLowerCase().includes(filter.query.toLowerCase()))
-  }, [filter.query, sortedPosts])
+  const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost])
