@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useMemo, useState, useRef } from "react";
+import PostFilter from "./components/PostFilter";
 import PostForm from "./components/PostForm";
 import PostItem from "./components/PostItem";
 import PostList from "./components/PostList";
@@ -15,6 +16,21 @@ function App() {
   ])
 
   const [selectedSort, setSelectedSort] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
+
+  const sortedPosts = useMemo( () => {
+    console.log('Отработала функция getSortedPosts')
+    if(selectedSort) {
+      return [...posts].sort((a, b) => a[selectedSort].localeCompare(b[selectedSort]));
+    }
+    return posts;
+  }, [selectedSort, posts]);
+
+  const sortedAndSearchedPosts = useMemo(() => {
+    return sortedPosts.filter(post => post.title.toLowerCase().includes(searchQuery))
+  }, [searchQuery, sortedPosts])
+
   const createPost = (newPost) => {
     setPosts([...posts, newPost])
   }
@@ -27,25 +43,16 @@ function App() {
 
   const sortPosts = (sort) => {
     setSelectedSort(sort);
-    setPosts([...posts].sort((a, b) => a[sort].localeCompare(b[sort])))
   }
 
   return (
     <div className="App">
+      {/* create={createPost} -- Функция обратного вызова. Вызываем ее внутри компонента PostForm */}
       <PostForm create={createPost}/>
       <hr style={{margin: '15px 0'}}/>
-      <div>
-        <MySelect 
-          value={selectedSort}
-          onChange={sortPosts}
-          defaultValue="Сортировка" 
-          options={[
-            {value: 'title', name: 'По заголовку'},
-            {value: 'body', name: 'По тексту'},
-          ]} />
-      </div>
-      {posts.length !== 0
-        ? <PostList remove={removePost} posts={posts} title="Посты про JS"/>
+      <PostFilter />
+      {sortedAndSearchedPosts.length !== 0
+        ? <PostList remove={removePost} posts={sortedAndSearchedPosts} title="Посты про JS"/>
         : <h1 style={{textAlign: "center"}}>Посты не были найдены</h1>
       }
       
