@@ -10,6 +10,7 @@ import MyButton from "./components/UI/button/MyButton";
 import MyInput from "./components/UI/input/MyInput";
 import Loader from "./components/UI/Loader/Loader";
 import MyModal from "./components/UI/MyModal/MyModal";
+import Pagination from "./components/UI/pagination/Pagination";
 import MySelect from "./components/UI/select/MySelect";
 import './styles/App.css'
 import { getPageCount, getPagesArray } from "./utils/pages";
@@ -22,11 +23,8 @@ function App() {
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query);
-  let pagesArray = getPagesArray(totalPages);
  
-  console.log([pagesArray]);
-
-  const [fetchPosts, isPostLoading, postError] = useFetching(async () => {
+  const [fetchPosts, isPostLoading, postError] = useFetching(async (limit, page) => {
     const response = await PostService.getAll(limit, page);
     setPosts(response.data);
     const totalCount = response.headers['x-total-count']
@@ -34,7 +32,7 @@ function App() {
   })
 
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(limit, page);
   }, [page])
 
   const createPost = (newPost) => {
@@ -49,6 +47,7 @@ function App() {
 
   const changePage = (page) => {
     setPage(page);
+    fetchPosts(limit, page)
   }
 
   return (
@@ -70,11 +69,7 @@ function App() {
         ? <div style={{display: 'flex', justifyContent: 'center', marginTop: 50}}><Loader /></div>
         : <PostList remove={removePost} posts={sortedAndSearchedPosts} title="Посты про JS"/>
       }
-      <div className="page__wrapper">
-        {pagesArray.map(p =>
-          <span onClick={() => changePage(p)} key={p} className={page === p ? 'page page__current' : 'page'}>{p}</span>
-        )}
-      </div>
+      <Pagination page={page} changePage={changePage} totalPages={totalPages}/>
 
     </div>
   );
